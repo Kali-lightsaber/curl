@@ -249,6 +249,21 @@ static CURLcode file_connect(struct connectdata *conn, bool *done)
     if(actual_path[i] == '/')
       actual_path[i] = '\\';
 
+  /* assume URL encoded paths are UTF-8 and use _wopen if possible */
+  wchar_len = sizeof(wchar_t) * MultiByteToWideChar(CP_UTF8, 0, actual_path, -1, NULL, 0);
+
+  if (wchar_len && (outbuf = malloc(wchar_len)) &&
+      MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, actual_path, -1, outbuf, wchar_len))
+  {
+      /* replace the old string with a new wchar_t one */
+      curl_free(real_path);
+
+      real_path = actual_path = (char*)outbuf;
+      fd = _wopen(outbuf, O_RDONLY | O_BINARY);
+  } else {
+      fd = open(actual_path, O_RDONLY | O_BINARY);
+  }
+
   file->path = actual_path;
 #else
   fd = open(real_path, O_RDONLY);
