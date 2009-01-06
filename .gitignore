@@ -1,0 +1,12 @@
+*.idb
+*.obj
+*.exe
+*.exe.manifest
+*.dll
+*.dll.manifest
+*.ilk
+*.pdb
+*.res
+*.exp
+*.lib
+
